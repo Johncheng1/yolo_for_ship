@@ -15,5 +15,6 @@ class net
     Returns
         卷积计算的结果
     """
-    def conv_layer(self, idx, inputs, filter, stride)   
-        channels = inputs.get_shape()[3]
+    def conv_layer(self, ids, inputs, filter, stride, trainable = False):   
+        weight = tf.get_variable(name=self.layer_names[ids[0]], trainable = trainable, shape = filter, initializer = tf.contrib.layers.xavier_initializer() )
+        bias = tf.get_variable(name=self.layer_names[ids[1]], trainable = trainable, shape = filter[-1], initializer = tf.constant_initializer(0.0) )
