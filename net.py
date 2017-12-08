@@ -122,6 +122,14 @@ class Net:
         # 预测长宽尺寸
         size_pre = tf.slice(self.result, [0, 7*7*4], [size, 7*7*6], name='size_pre')
         size_label = tf.slice(label, [0, 7*7*4], [size, 7*7*6], name='size_label')
+        # 损失
+        class_loss = tf.reduce_sum(tf.square( class_pre - class_label ))
+        prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
+        pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
+        size_loss = tf.reduce_sum(tf.square( tf.sqrt(size_pre) - tf.sqrt(size_label) ))
+        loss = 5 * (class_loss + prob_loss) + 0.5*(pos_loss + size_loss)
+
+        return loss
     """
         训练
     """
