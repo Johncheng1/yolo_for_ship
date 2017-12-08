@@ -107,9 +107,14 @@ class Net:
             inputs = tf.maximum(0.1*inputs,inputs,name=layer_name+'_leaky_relu') 
         return inputs
     """
+        损失函数的计算
+    """
+    def loss(self, session):
+        pass
+    """
         训练
     """
-    def load(self, session):
+    def train(self,session):
         pass
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
