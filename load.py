@@ -34,7 +34,25 @@ def get_train_data(dataset):
         train_label.append(label)
         train_data.append(data[0])
     return train_data, train_label
+def get_batch_data(train_data, train_label,index,batch_size):
+    train_data = np.array(train_data)
+    train_data = train_data / 127.5 - 1
+    
+    if index+batch_size < len(train_data):
+        start = index * batch_size
+        end = index * batch_size + batch_size
+        return train_data[start:end], train_label[start:end]
+    else:
+        start = ( index * batch_size ) % len(train_data)
+        end = ( index * batch_size + batch_size ) % len(train_data)
+        if start < end:
+            return train_data[start:end], train_label[start:end]
+        else :
+            start = end
+            end = end + batch_size
+            return train_data[start:end], train_label[start:end]
 
 filename = 'dataset.npy'
 dataset = read_dataset(filename)
 train_data, train_label = get_train_data(dataset)
+print('==========================加载数据成功===========================')

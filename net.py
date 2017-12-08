@@ -2,12 +2,16 @@ import tensorflow as tf
 import numpy as np
 import read_ckpt
 import cv2
+import load
 class Net:   
     def __init__(self, layer_names, weights):    
         self.layer_names = layer_names
         self.weights = weights
         self.alpha = 0.1
+        self.batch_size = 32
+        self.step = 100
         self.build()
+        self.set_training()
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
@@ -109,10 +113,10 @@ class Net:
     """
         损失函数的计算
     """
-    def loss(self, session, result, label, size):
+    def loss(self, result, label, size):
         # 预测类别
         class_pre = tf.slice(self.result, [0, 0], [size, 7*7], name='class_pre')
-        class_label =tf.size(label, [0,0], [size, 7*7], name='class_label')
+        class_label =tf.slice(label, [0,0], [size, 7*7], name='class_label')
         # 预测是否存在于方块
         prob_pre =  tf.slice(self.result, [0, 7*7], [size, 7*7], name='prob_pre')
         prob_label =  tf.slice(label, [0, 7*7], [size, 7*7], name='prob_label')
@@ -133,16 +137,26 @@ class Net:
     """
         训练
     """
-    def train(self,session):
-        pass
+    def set_training(self):
+        self.loss = self.loss(self.result, self.output, self.batch_size)
+        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.01).minimize(self.loss)
+    def train(self):
+        print('=======================开始训练了哈==========================')
+        for i in range(self.step):
+            # 读点数据进来
+            data, label = load.get_batch_data(load.train_data, load.train_label,i,self.batch_size)
+            self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
+            print(i)
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
 
-img = cv2.imread('juanji.png')
+''' img = cv2.imread('juanji.png')
 img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 inputs = np.zeros((1,448,448,3),dtype='float32')
 inputs[0] = (img/255.0)*2.0-1.0
 net = Net(read_ckpt.layer_names, read_ckpt.weights)
 a = net.run(inputs)
 print(a.shape)
-np.save('juanji.npy',a)
+np.save('juanji.npy',a) '''
+net = Net(read_ckpt.layer_names, read_ckpt.weights)
+net.train()
