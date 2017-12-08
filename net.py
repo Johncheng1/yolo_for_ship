@@ -47,7 +47,8 @@ class Net:
             print('loadded the %sth params' % (i))
         #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
         #session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
-
+    def train(self):
+        pass
     """
     Parameters
         layer_name  层名
@@ -72,7 +73,7 @@ class Net:
         return inputs
     """
     Parameters
-        layer_name  层对应编号
+        layer_name  层名称
         inputs      输入数据
     Returns
         maxpool结果
@@ -80,10 +81,22 @@ class Net:
     def max_pool(self, layer_name, inputs):
         inputs = tf.nn.max_pool(inputs, [1,2,2,1], strides = [1,2,2,1], padding = 'SAME', name = layer_name)
         return inputs
+    """
+    Parameters
+        layer_name  层名称
+        inputs      输入数据
+        shape       神经元数目
+        is_load     是否载入预训练数据
+    Returns
+        全连接层
+    """
+    def fc_layer(self, layer_name, inputs, shape, is_load):
+        weight = tf.get_variable(name='w_'+layer_name, trainable = True, shape = shape, initializer = tf.contrib.layers.xavier_initializer() )
+        bias = tf.get_variable(name='b_'+layer_name, trainable = True, shape = [ shape[-1] ], initializer = tf.constant_initializer(0.0) )
+        pass
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
 
-#print(read_ckpt.weights[0].shape)
 img = cv2.imread('juanji.png')
 img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 inputs = np.zeros((1,448,448,3),dtype='float32')
