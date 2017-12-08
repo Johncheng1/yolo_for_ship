@@ -11,7 +11,7 @@ class Net:
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
-        #self.load(self.sess)
+        self.load(self.sess)
     """
         神经网络的结构
     """
@@ -19,15 +19,6 @@ class Net:
         self.input = tf.placeholder('float32',[None,448,448,3])
         self.output = tf.placeholder('float32',[None,7*7*6]) 
         
-        ''' self.pre = self.conv_layer("conv_1", self.input, (7,7,3,64), 2)
-        self.pre = self.max_pool("max_pool_1", self.pre)
-        self.pre = self.conv_layer("conv_2", self.pre, [3,3,64,192], 1)
-        self.pre = self.max_pool("max_pool_2", self.pre)
-        self.pre = self.conv_layer("conv_3_1", self.pre, [1,1,192,128], 1)
-        self.pre = self.conv_layer("conv_3_2", self.pre, [3,3,128,256], 1)
-        self.pre = self.conv_layer("conv_3_3", self.pre, [1,1,256,256], 1)
-        self.pre = self.conv_layer("conv_3_4", self.pre, [3,3,256,512], 1)
-        self.pre = self.max_pool("max_pool_3", self.pre) '''
         self.pre = self.input
         index = 0
 
@@ -39,14 +30,13 @@ class Net:
                 else:
                     self.pre = self.conv_layer(l, self.pre, self.weights[index].shape, 1)
                     print('build the '+l[:-1]+' the kernel size is '+ str(self.weights[index].shape))
-                index += 1
+                index += 2
             elif l[:3] == 'max':
                 self.pre = self.max_pool("max_pool_3", self.pre)
+                print('build the ' + l +'!')
             else:
                 print('build the full connection layer!')
-
-        #self.pre = self.conv_layer("conv_", self.pre, [,,,], 1)
-
+                
         self.result = self.pre
 
     def load(self, session):
@@ -54,6 +44,7 @@ class Net:
         for w in tf.get_collection('weights'):
             session.run(w.assign(self.weights[i]))
             i = i + 1
+            print('loadded the %sth params' % (i))
         #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
         #session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
 

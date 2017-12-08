@@ -18,5 +18,3 @@ layer_names = ['conv1s','max_pool1','conv2','max_pool2',
             'conv5_1','conv5_2','conv5_3','conv5_4','conv5_5','conv5_6s',
             'conv6_1','conv6_2',
             'full_7','full_8','full_9']
-for i in weights:
-    print(i.shape)
