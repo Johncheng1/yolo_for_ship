@@ -109,13 +109,19 @@ class Net:
     """
         损失函数的计算
     """
-    def loss(self, session, result, y):
-        class_loss = tf.constant(0, tf.float32)
-        object_loss = tf.constant(0, tf.float32)
-        noobject_loss = tf.constant(0, tf.float32)
-        coord_loss = tf.constant(0, tf.float32)
-        loss = [0, 0, 0, 0]
-        class_pre = tf.slice(self.result, 1, 7*7, name=None)
+    def loss(self, session, result, label, size):
+        # 预测类别
+        class_pre = tf.slice(self.result, [0, 0], [size, 7*7], name='class_pre')
+        class_label =tf.size(label, [0,0], [size, 7*7], name='class_label')
+        # 预测是否存在于方块
+        prob_pre =  tf.slice(self.result, [0, 7*7], [size, 7*7], name='prob_pre')
+        prob_label =  tf.slice(label, [0, 7*7], [size, 7*7], name='prob_label')
+        # 预测横纵坐标
+        pos_pre = tf.slice(self.result, [0, 7*7*2], [size, 7*7*4], name='pos_pre')
+        pos_label = tf.slice(label, [0, 7*7*2], [size, 7*7*4], name='pos_label')
+        # 预测长宽尺寸
+        size_pre = tf.slice(self.result, [0, 7*7*4], [size, 7*7*6], name='size_pre')
+        size_label = tf.slice(label, [0, 7*7*4], [size, 7*7*6], name='size_label')
     """
         训练
     """
