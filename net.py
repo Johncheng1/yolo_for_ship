@@ -38,9 +38,9 @@ class Net:
         self.pre= tf.transpose(self.pre,(0,3,1,2))
         self.pre = tf.reshape(self.pre, [-1, 7*7*1024 ])
 
-        self.pre = fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
-        self.pre = fc_layer('fc_7', self.pre, [512,4096], True, False)
-        self.pre = fc_layer('fc_7', self.pre, [4096,7*7*6], False, True)
+        self.pre = self.fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
+        self.pre = self.fc_layer('fc_8', self.pre, [512,4096], True, False)
+        self.pre = self.fc_layer('fc_9', self.pre, [4096,7*7*6], False, True)
                 
         self.result = self.pre
     """
@@ -109,8 +109,13 @@ class Net:
     """
         损失函数的计算
     """
-    def loss(self, session):
-        pass
+    def loss(self, session, result, y):
+        class_loss = tf.constant(0, tf.float32)
+        object_loss = tf.constant(0, tf.float32)
+        noobject_loss = tf.constant(0, tf.float32)
+        coord_loss = tf.constant(0, tf.float32)
+        loss = [0, 0, 0, 0]
+        class_pre = tf.slice(self.result, 1, 7*7, name=None)
     """
         训练
     """
