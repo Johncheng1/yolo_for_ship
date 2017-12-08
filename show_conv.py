@@ -14,7 +14,7 @@ def zuhe(width,height,size,input):
     return mat
 input = np.load('juanji.npy')[0]
 print(input[:,:,0].shape)
-mat = zuhe(8,8,112,input)
+mat = zuhe(32,16,56,input)
 #scaler = preprocessing.MinMaxScaler()
 #mat = scaler.fit_transform(mat) * 255
 plt.imshow(mat, cmap='gray')

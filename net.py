@@ -19,14 +19,25 @@ class Net:
         self.input = tf.placeholder('float32',[None,448,448,3])
         self.output = tf.placeholder('float32',[None,7*7*6]) 
         
-        self.pre = self.conv_layer(0, self.input, [7,7,3,64], 2)
-        self.pre = self.max_pool(0, self.pre)
+        self.pre = self.conv_layer("conv_1", self.input, [7,7,3,64], 2)
+        self.pre = self.max_pool("max_pool_1", self.pre)
+        self.pre = self.conv_layer("conv_2", self.pre, [3,3,64,192], 1)
+        self.pre = self.max_pool("max_pool_2", self.pre)
+        self.pre = self.conv_layer("conv_3_1", self.pre, [1,1,192,128], 1)
+        self.pre = self.conv_layer("conv_3_2", self.pre, [3,3,128,256], 1)
+        self.pre = self.conv_layer("conv_3_3", self.pre, [1,1,256,256], 1)
+        self.pre = self.conv_layer("conv_3_4", self.pre, [3,3,256,512], 1)
+        #self.pre = self.conv_layer("conv_", self.pre, [,,,], 1)
 
         self.result = self.pre
 
     def load(self, session):
-        session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
-        session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
+        i = 0
+        for w in tf.get_collection('weights'):
+            session.run(w.assign(self.weights[i]))
+            i = i + 1
+        #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
+        #session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
 
     """
     Parameters
@@ -62,12 +73,13 @@ class Net:
         return inputs
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
-"""
+
+#print(read_ckpt.weights[0].shape)
 img = cv2.imread('juanji.png')
 img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 inputs = np.zeros((1,448,448,3),dtype='float32')
 inputs[0] = (img/255.0)*2.0-1.0
 net = Net(read_ckpt.layer_names, read_ckpt.weights)
 a = net.run(inputs)
+print(a.shape)
 np.save('juanji.npy',a)
-"""

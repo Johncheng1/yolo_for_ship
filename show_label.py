@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 dataset = np.load('dataset.npy')
+#cv2.imwrite("juanji.png",dataset[0][0])
 for data in dataset:
     img = data[0]
     rec = data[1]
