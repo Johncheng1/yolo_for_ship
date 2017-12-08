@@ -43,7 +43,9 @@ class Net:
         self.pre = fc_layer('fc_7', self.pre, [4096,7*7*6], False, True)
                 
         self.result = self.pre
-
+    """
+        载入权重参数
+    """
     def load(self, session):
         i = 0
         for w in tf.get_collection('weights'):
@@ -52,8 +54,6 @@ class Net:
             print('loadded the %sth params' % (i))
         #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
         #session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
-    def train(self):
-        pass
     """
     Parameters
         layer_name  层名
@@ -106,7 +106,11 @@ class Net:
         if is_output:
             inputs = tf.maximum(0.1*inputs,inputs,name=layer_name+'_leaky_relu') 
         return inputs
-
+    """
+        训练
+    """
+    def load(self, session):
+        pass
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
 
