@@ -55,4 +55,13 @@ def get_batch_data(train_data, train_label,index,batch_size):
 filename = 'dataset.npy'
 dataset = read_dataset(filename)
 train_data, train_label = get_train_data(dataset)
-print('==========================加载数据成功===========================')
+dataset1 = []
+for i in range(3200):
+    data = train_data[i]
+    label = train_label[i]
+    data = data / 127.5 - 1
+    dataset1.append([data,label])
+#print(dataset1)
+np.save("train.npy",dataset1)
+#print(len(train_data))
+#print('==========================加载数据成功===========================')

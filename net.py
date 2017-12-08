@@ -8,7 +8,7 @@ class Net:
         self.layer_names = layer_names
         self.weights = weights
         self.alpha = 0.1
-        self.batch_size = 32
+        self.batch_size = 8
         self.step = 100
         self.build()
         self.set_training()
@@ -121,11 +121,11 @@ class Net:
         prob_pre =  tf.slice(self.result, [0, 7*7], [size, 7*7], name='prob_pre')
         prob_label =  tf.slice(label, [0, 7*7], [size, 7*7], name='prob_label')
         # 预测横纵坐标
-        pos_pre = tf.slice(self.result, [0, 7*7*2], [size, 7*7*4], name='pos_pre')
-        pos_label = tf.slice(label, [0, 7*7*2], [size, 7*7*4], name='pos_label')
+        pos_pre = tf.slice(self.result, [0, 7*7*2], [size, 7*7*2], name='pos_pre')
+        pos_label = tf.slice(label, [0, 7*7*2], [size, 7*7*2], name='pos_label')
         # 预测长宽尺寸
-        size_pre = tf.slice(self.result, [0, 7*7*4], [size, 7*7*6], name='size_pre')
-        size_label = tf.slice(label, [0, 7*7*4], [size, 7*7*6], name='size_label')
+        size_pre = tf.slice(self.result, [0, 7*7*4], [size, 7*7*2], name='size_pre')
+        size_label = tf.slice(label, [0, 7*7*4], [size, 7*7*2], name='size_label')
         # 损失
         class_loss = tf.reduce_sum(tf.square( class_pre - class_label ))
         prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
