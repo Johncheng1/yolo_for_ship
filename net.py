@@ -33,9 +33,14 @@ class Net:
                 index += 2
             elif l[:3] == 'max':
                 self.pre = self.max_pool("max_pool_3", self.pre)
-                print('build the ' + l +'!')
-            else:
-                print('build the full connection layer!')
+                print('build the ' + l +'!')    
+        # 转换一下好搞那个全连接层 
+        self.pre= tf.transpose(self.pre,(0,3,1,2))
+        self.pre = tf.reshape(self.pre, [-1, 7*7*1024 ])
+
+        self.pre = fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
+        self.pre = fc_layer('fc_7', self.pre, [512,4096], True, False)
+        self.pre = fc_layer('fc_7', self.pre, [4096,7*7*6], False, True)
                 
         self.result = self.pre
 
@@ -90,10 +95,18 @@ class Net:
     Returns
         全连接层
     """
-    def fc_layer(self, layer_name, inputs, shape, is_load):
+    def fc_layer(self, layer_name, inputs, shape, is_load, is_output):
         weight = tf.get_variable(name='w_'+layer_name, trainable = True, shape = shape, initializer = tf.contrib.layers.xavier_initializer() )
         bias = tf.get_variable(name='b_'+layer_name, trainable = True, shape = [ shape[-1] ], initializer = tf.constant_initializer(0.0) )
-        pass
+        if is_load:
+            tf.add_to_collection('weights', weight)
+            tf.add_to_collection('weights',bias)   
+
+        inputs = tf.add(tf.matmul(inputs, weight), bias)
+        if is_output:
+            inputs = tf.maximum(0.1*inputs,inputs,name=layer_name+'_leaky_relu') 
+        return inputs
+
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
 
