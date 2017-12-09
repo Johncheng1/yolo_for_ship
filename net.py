@@ -161,10 +161,10 @@ class Net:
         size_pre = tf.slice(self.result, [0, 7*7*4], [size, 7*7*2], name='size_pre')
         size_label = tf.slice(label, [0, 7*7*4], [size, 7*7*2], name='size_label')
         # 损失
-        class_loss = tf.reduce_mean(tf.square( class_pre - class_label ))
-        prob_loss = tf.reduce_mean(tf.square( prob_pre - prob_label ))
-        pos_loss = tf.reduce_mean(tf.square( pos_pre - pos_label ))
-        size_loss = tf.reduce_mean(tf.square( size_pre - size_label ))
+        class_loss = tf.reduce_sum(tf.square( class_pre - class_label ))
+        prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
+        pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
+        size_loss = tf.reduce_sum(tf.square( size_pre - size_label ))
         loss = 5 * (class_loss + prob_loss) + 0.5*(pos_loss + size_loss)
 
         return loss
