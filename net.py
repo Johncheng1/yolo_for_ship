@@ -2,30 +2,90 @@ import tensorflow as tf
 import numpy as np
 import read_ckpt
 import cv2
+<<<<<<< HEAD
+#import load_conved
+=======
 import load
+>>>>>>> parent of 512c8b7... yesterday
 class Net:   
-    def __init__(self, layer_names, weights):    
+    """
+    模式
+    0：正常模式，完整版本
+    1：只要卷积层的版本
+    2：只要全连接层，用于训练的版本
+    3: 只是没有全连接层
+    """
+    def __init__(self, layer_names, weights, mode=0):    
         self.layer_names = layer_names
         self.weights = weights
         self.alpha = 0.1
+<<<<<<< HEAD
+        self.batch_size = 32
+        self.step = 100000
+        self.build(mode)
+        if mode == 2:
+            self.set_training()
+=======
         self.batch_size = 8
         self.step = 100
         self.build()
         self.set_training()
+>>>>>>> parent of 512c8b7... yesterday
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
-        self.load(self.sess)
+        self.load(self.sess,mode)
     """
         神经网络的结构
     """
+<<<<<<< HEAD
+    def build(self,mode): 
+        if mode == 2:
+            self.input = tf.placeholder('float32',[None,7*7*1024])
+        else:
+            self.input = tf.placeholder('float32',[None,448,448,3])
+=======
     def build(self): 
         self.input = tf.placeholder('float32',[None,448,448,3])
+>>>>>>> parent of 512c8b7... yesterday
         self.output = tf.placeholder('float32',[None,7*7*6]) 
-        
+
         self.pre = self.input
+<<<<<<< HEAD
+
+        if mode == 0:
+            # 正常模式
+            self.pre = self.build_conv()
+            # 转换一下好搞那个全连接层 
+            self.pre= tf.transpose(self.pre,(0,3,1,2))
+            self.pre = tf.reshape(self.pre, [-1, 7*7*1024 ]) 
+            
+            self.pre = self.fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
+            self.pre = self.fc_layer('fc_8', self.pre, [512,4096], True, False)
+            self.pre = self.fc_layer('fc_9', self.pre, [4096,7*7*6], False, True) 
+        elif mode == 1:
+            # 只要卷积层
+            self.pre = self.build_conv()
+        elif mode == 2:
+            # 只要全连接层
+            self.pre = self.fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
+            self.pre = self.fc_layer('fc_8', self.pre, [512,4096], True, False)
+            self.pre = self.fc_layer('fc_9', self.pre, [4096,7*7*6], False, True)
+        elif mode == 3:
+            self.pre = self.build_conv()
+            # 转换一下好搞那个全连接层 
+            self.pre= tf.transpose(self.pre,(0,3,1,2))
+            self.pre = tf.reshape(self.pre, [-1, 7*7*1024 ]) 
+        
+        
+        self.result = self.pre
+    def build_conv(self):
+        index = 0
+    
+=======
         index = 0
 
+>>>>>>> parent of 512c8b7... yesterday
         for l in self.layer_names:
             if l[:3] == 'con':
                 if l[-1] == 's':
@@ -37,6 +97,18 @@ class Net:
                 index += 2
             elif l[:3] == 'max':
                 self.pre = self.max_pool("max_pool_3", self.pre)
+<<<<<<< HEAD
+                print('build the ' + l +'!') 
+        return self.pre 
+          
+    """
+        载入权重参数
+    """
+    def load(self, session, mode):
+        i = 0
+        if mode == 2:
+            i = i + 48
+=======
                 print('build the ' + l +'!')    
         # 转换一下好搞那个全连接层 
         self.pre= tf.transpose(self.pre,(0,3,1,2))
@@ -52,6 +124,7 @@ class Net:
     """
     def load(self, session):
         i = 0
+>>>>>>> parent of 512c8b7... yesterday
         for w in tf.get_collection('weights'):
             session.run(w.assign(self.weights[i]))
             i = i + 1
@@ -149,6 +222,34 @@ class Net:
             print(i)
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
+<<<<<<< HEAD
+    """
+        将数据集转换为仅需要训练全连接层的输入和标签
+    """
+    def get_fc_dataset(self):
+        ''' dataset = np.load("train.npy")
+        dataset1 = []
+        for data in dataset:
+            a = self.sess.run(self.result,feed_dict={self.input:[data[0]]})
+            dataset1.append([a[0], data[1]])
+            print("this is the %s epoch and the shape is %s" % (a[:5],a.shape))
+        #np.save('conv_result.npy', dataset1) '''
+        dataset = np.load('dataset.npy')
+        size = len(dataset)
+        fc_dataset = []
+        for data in dataset:
+            img = cv2.cvtColor(data[0],cv2.COLOR_BGR2RGB)
+            img = ( img / 255 ) * 2 - 1
+            a = self.sess.run(self.result,feed_dict={self.input:[ img ]})
+            fc_data = [ a, data[1] ]
+            fc_dataset.append(fc_data)
+            print("this is the %s/%s picture" % (len(fc_dataset), size))
+        np.save('fc_dataset.npy',fc_dataset)
+    
+    def trans_to_npy(self):
+        pass
+=======
+>>>>>>> parent of 512c8b7... yesterday
 
 ''' img = cv2.imread('juanji.png')
 img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
@@ -158,5 +259,5 @@ net = Net(read_ckpt.layer_names, read_ckpt.weights)
 a = net.run(inputs)
 print(a.shape)
 np.save('juanji.npy',a) '''
-net = Net(read_ckpt.layer_names, read_ckpt.weights)
-net.train()
+net = Net(read_ckpt.layer_names, read_ckpt.weights,3)
+net.get_fc_dataset()
