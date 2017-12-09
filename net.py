@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import read_ckpt
 import cv2
-#import load_conved
+import load_fc
 class Net:   
     """
     模式
@@ -15,7 +15,7 @@ class Net:
         self.layer_names = layer_names
         self.weights = weights
         self.alpha = 0.1
-        self.batch_size = 32
+        self.batch_size = 128
         self.step = 100000
         self.build(mode)
         if mode == 2:
@@ -174,13 +174,6 @@ class Net:
     def set_training(self):
         self.loss = self.loss(self.result, self.output, self.batch_size)
         self.optimizer = tf.train.AdamOptimizer(learning_rate=0.01).minimize(self.loss)
-    def train(self):
-        print('=======================开始训练了哈==========================')
-        for i in range(self.step):
-            # 读点数据进来
-            data, label = load.get_batch_data(load.train_data, load.train_label,i,self.batch_size)
-            self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
-            print(i)
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
     """
@@ -205,7 +198,13 @@ class Net:
             fc_dataset.append(fc_data)
             print("this is the %s/%s picture" % (len(fc_dataset), size))
         np.save('fc_dataset.npy',fc_dataset)
-    
+    def train_fc(self):
+        print('=======================开始训练了哈==========================')
+        for i in range(self.step):
+            # 读点数据进来
+            data, label = load_fc.get_train_data(load_fc.dataset, self.batch_size)
+            self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
+            print(i)
     def trans_to_npy(self):
         pass
 
@@ -217,5 +216,5 @@ net = Net(read_ckpt.layer_names, read_ckpt.weights)
 a = net.run(inputs)
 print(a.shape)
 np.save('juanji.npy',a) '''
-net = Net(read_ckpt.layer_names, read_ckpt.weights,3)
-net.get_fc_dataset()
+net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
+net.train_fc()
