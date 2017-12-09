@@ -173,7 +173,7 @@ class Net:
     """
     def set_training(self):
         self.loss = self.loss(self.result, self.output, self.batch_size)
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.01).minimize(self.loss)
+        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(self.loss)
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
     """
@@ -203,8 +203,8 @@ class Net:
         for i in range(self.step):
             # 读点数据进来
             data, label = load_fc.get_train_data(load_fc.dataset, self.batch_size)
-            self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
             l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
+            self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
             print("the %sepoch loss is %s" % (i,l))
     def trans_to_npy(self):
         pass
