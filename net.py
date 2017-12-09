@@ -161,10 +161,10 @@ class Net:
         size_pre = tf.slice(self.result, [0, 7*7*4], [size, 7*7*2], name='size_pre')
         size_label = tf.slice(label, [0, 7*7*4], [size, 7*7*2], name='size_label')
         # 损失
-        class_loss = tf.reduce_sum(tf.square( class_pre - class_label ))
-        prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
-        pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
-        size_loss = tf.reduce_sum(tf.square( tf.sqrt(size_pre) - tf.sqrt(size_label) ))
+        class_loss = tf.reduce_mean(tf.square( class_pre - class_label ))
+        prob_loss = tf.reduce_mean(tf.square( prob_pre - prob_label ))
+        pos_loss = tf.reduce_mean(tf.square( pos_pre - pos_label ))
+        size_loss = tf.reduce_mean(tf.square( size_pre - size_label ))
         loss = 5 * (class_loss + prob_loss) + 0.5*(pos_loss + size_loss)
 
         return loss
@@ -204,7 +204,8 @@ class Net:
             # 读点数据进来
             data, label = load_fc.get_train_data(load_fc.dataset, self.batch_size)
             self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
-            print(i)
+            l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
+            print("the %sepoch loss is %s" % (i,l))
     def trans_to_npy(self):
         pass
 

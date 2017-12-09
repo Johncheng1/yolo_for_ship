@@ -32,3 +32,5 @@ def get_matrix(data):
     return matrix
 
 dataset = np.load('fc_dataset.npy')
+''' a,b = get_train_data(dataset, 10)
+print(a[0]) '''
