@@ -17,6 +17,7 @@ class Net:
         self.alpha = 0.1
         self.batch_size = 128
         self.step = 100000
+        self.mode = mode
         self.build(mode)
         if mode == 2:
             self.set_training()
@@ -52,8 +53,11 @@ class Net:
         elif mode == 2:
             # 只要全连接层
             self.pre = self.fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
+            self.fc1 = self.pre
             self.pre = self.fc_layer('fc_8', self.pre, [512,4096], True, False)
+            self.fc2 = self.pre
             self.pre = self.fc_layer('fc_9', self.pre, [4096,7*7*6], False, True)
+            self.fc3 = self.pre
         elif mode == 3:
             self.pre = self.build_conv()
             # 转换一下好搞那个全连接层 
@@ -173,7 +177,7 @@ class Net:
     """
     def set_training(self):
         self.loss = self.loss(self.result, self.output, self.batch_size)
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(self.loss)
+        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(self.loss)
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
     """
@@ -203,9 +207,15 @@ class Net:
         for i in range(self.step):
             # 读点数据进来
             data, label = load_fc.get_train_data(load_fc.dataset, self.batch_size)
-            l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
             self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
-            print("the %sepoch loss is %s" % (i,l))
+            if (i+1)%20 ==0:
+                l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
+                print("the %sepoch loss is %s" % (i,l))
+            if i > 20000 and self.mode == 2:
+                fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
+                np.save('fc1.npy',fc1)
+                np.save('fc2.npy',fc2)
+                np.save('fc3.npy',fc3)
     def trans_to_npy(self):
         pass
 
