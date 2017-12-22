@@ -53,11 +53,11 @@ class Net:
         elif mode == 2:
             # 只要全连接层
             self.pre = self.fc_layer('fc_7', self.pre, [7*7*1024,512], True, False)
-            self.fc1 = self.pre
+            #self.fc1 = self.pre
             self.pre = self.fc_layer('fc_8', self.pre, [512,4096], True, False)
-            self.fc2 = self.pre
+            #self.fc2 = self.pre
             self.pre = self.fc_layer('fc_9', self.pre, [4096,7*7*6], False, True)
-            self.fc3 = self.pre
+            #self.fc3 = self.pre
         elif mode == 3:
             self.pre = self.build_conv()
             # 转换一下好搞那个全连接层 
@@ -94,6 +94,8 @@ class Net:
             session.run(w.assign(self.weights[i]))
             i = i + 1
             print('loadded the %sth params' % (i))
+        if mode ==0:
+            pass
         #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
         #session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
     """
@@ -141,8 +143,8 @@ class Net:
         weight = tf.get_variable(name='w_'+layer_name, trainable = True, shape = shape, initializer = tf.contrib.layers.xavier_initializer() )
         bias = tf.get_variable(name='b_'+layer_name, trainable = True, shape = [ shape[-1] ], initializer = tf.constant_initializer(0.0) )
         if is_load:
-            tf.add_to_collection('weights', weight)
-            tf.add_to_collection('weights',bias)   
+            tf.add_to_collection(layer_name, weight)
+            tf.add_to_collection(layer_name,bias)   
 
         inputs = tf.add(tf.matmul(inputs, weight), bias)
         if is_output:
@@ -211,11 +213,21 @@ class Net:
             if (i+1)%20 ==0:
                 l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
                 print("the %sepoch loss is %s" % (i,l))
-            if i > 20000 and self.mode == 2:
-                fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
-                np.save('fc1.npy',fc1)
-                np.save('fc2.npy',fc2)
-                np.save('fc3.npy',fc3)
+                
+                if i > 20000 and self.mode == 2:
+                    #fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
+                    # 跑了一下午程序，存错变量了
+                    fc_7_w = tf.get_collection('fc_7')[0]
+                    fc_7_b = tf.get_collection('fc_7')[1]
+                    fc_8_w = tf.get_collection('fc_7')[0]
+                    fc_8_b = tf.get_collection('fc_7')[1]
+                    fc_9_w = tf.get_collection('fc_7')[0]
+                    fc_9_b = tf.get_collection('fc_7')[1]
+                    cul = [fc_7_w, fc_7_b, fc_8_w, fc_8_b, fc_9_w, fc_9_b]
+                    c = self.sess.run(cul, feed_dict={self.input: data, self.output: label}) #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
+                    c = np.array(c)
+                    np.save('fc.npy',c)
+
     def trans_to_npy(self):
         pass
 
