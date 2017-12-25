@@ -95,7 +95,17 @@ class Net:
             i = i + 1
             print('loadded the %sth params' % (i))
         if mode ==0:
-            pass
+            fc = np.load('fc.npy')
+            fc_7_w = tf.get_collection('fc_7')[0]
+            fc_7_b = tf.get_collection('fc_7')[1]
+            fc_8_w = tf.get_collection('fc_7')[0]
+            fc_8_b = tf.get_collection('fc_7')[1]
+            fc_9_w = tf.get_collection('fc_7')[0]
+            fc_9_b = tf.get_collection('fc_7')[1]
+            cul = [fc_7_w, fc_7_b, fc_8_w, fc_8_b, fc_9_w, fc_9_b]
+            for i in range(6):
+                session.run(cul[i].assign(fc[i]))
+                print('全连接层第%s个权重加载完毕'%(i+1))
         #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
         #session.run(tf.get_collection('weights')[1].assign(self.weights[1]))
     """
@@ -171,7 +181,7 @@ class Net:
         prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
         pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
         size_loss = tf.reduce_sum(tf.square( size_pre - size_label ))
-        loss = 5 * (class_loss + prob_loss) + 0.5*(pos_loss + size_loss)
+        loss = 0.5*(class_loss + prob_loss) + 5*(pos_loss + size_loss)
 
         return loss
     """
@@ -210,11 +220,11 @@ class Net:
             # 读点数据进来
             data, label = load_fc.get_train_data(load_fc.dataset, self.batch_size)
             self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
-            if (i+1)%20 ==0:
+            if i%20 ==0:
                 l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
                 print("the %sepoch loss is %s" % (i,l))
                 
-                if i > 20000 and self.mode == 2:
+                if i > 40000 and self.mode == 2:
                     #fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
                     # 跑了一下午程序，存错变量了
                     fc_7_w = tf.get_collection('fc_7')[0]
@@ -239,5 +249,15 @@ net = Net(read_ckpt.layer_names, read_ckpt.weights)
 a = net.run(inputs)
 print(a.shape)
 np.save('juanji.npy',a) '''
+# 这个是用来对全连接层进行训练的
 net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
 net.train_fc()
+# 这个是完整的网络
+''' img = cv2.imread('dataset/img0.png')
+#img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+inputs = np.zeros((1,448,448,3),dtype='float32')
+inputs[0] = (img/255.0)*2.0-1.0
+net = Net(read_ckpt.layer_names, read_ckpt.weights, 0)
+a = net.run(inputs)
+print(a.shape)
+np.save('result.npy',a) '''
