@@ -94,14 +94,14 @@ class Net:
             session.run(w.assign(self.weights[i]))
             i = i + 1
             print('loadded the %sth params' % (i))
-        if mode ==0:
+        if mode ==0: #or mode == 2:
             fc = np.load('fc.npy')
             fc_7_w = tf.get_collection('fc_7')[0]
             fc_7_b = tf.get_collection('fc_7')[1]
-            fc_8_w = tf.get_collection('fc_7')[0]
-            fc_8_b = tf.get_collection('fc_7')[1]
-            fc_9_w = tf.get_collection('fc_7')[0]
-            fc_9_b = tf.get_collection('fc_7')[1]
+            fc_8_w = tf.get_collection('fc_8')[0]
+            fc_8_b = tf.get_collection('fc_8')[1]
+            fc_9_w = tf.get_collection('fc_9')[0]
+            fc_9_b = tf.get_collection('fc_9')[1]
             cul = [fc_7_w, fc_7_b, fc_8_w, fc_8_b, fc_9_w, fc_9_b]
             for i in range(6):
                 session.run(cul[i].assign(fc[i]))
@@ -222,17 +222,17 @@ class Net:
             self.sess.run(self.optimizer, feed_dict={self.input: data, self.output: label})
             if i%20 ==0:
                 l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
-                print("the %sepoch loss is %s" % (i,l))
+                print("the %s epoch loss is %s" % (i,l))
                 
-                if i > 40000 and self.mode == 2:
+                if i > 10000 and self.mode == 2:
                     #fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
                     # 跑了一下午程序，存错变量了
                     fc_7_w = tf.get_collection('fc_7')[0]
                     fc_7_b = tf.get_collection('fc_7')[1]
-                    fc_8_w = tf.get_collection('fc_7')[0]
-                    fc_8_b = tf.get_collection('fc_7')[1]
-                    fc_9_w = tf.get_collection('fc_7')[0]
-                    fc_9_b = tf.get_collection('fc_7')[1]
+                    fc_8_w = tf.get_collection('fc_8')[0]
+                    fc_8_b = tf.get_collection('fc_8')[1]
+                    fc_9_w = tf.get_collection('fc_9')[0]
+                    fc_9_b = tf.get_collection('fc_9')[1]
                     cul = [fc_7_w, fc_7_b, fc_8_w, fc_8_b, fc_9_w, fc_9_b]
                     c = self.sess.run(cul, feed_dict={self.input: data, self.output: label}) #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
                     c = np.array(c)
