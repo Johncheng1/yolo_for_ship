@@ -94,7 +94,7 @@ class Net:
             session.run(w.assign(self.weights[i]))
             i = i + 1
             print('loadded the %sth params' % (i))
-        if mode ==0: #or mode == 2:
+        if mode ==0 or mode == 2:
             fc = np.load('fc.npy')
             fc_7_w = tf.get_collection('fc_7')[0]
             fc_7_b = tf.get_collection('fc_7')[1]
@@ -152,9 +152,9 @@ class Net:
     def fc_layer(self, layer_name, inputs, shape, is_load, is_output):
         weight = tf.get_variable(name='w_'+layer_name, trainable = True, shape = shape, initializer = tf.contrib.layers.xavier_initializer() )
         bias = tf.get_variable(name='b_'+layer_name, trainable = True, shape = [ shape[-1] ], initializer = tf.constant_initializer(0.0) )
-        if is_load:
-            tf.add_to_collection(layer_name, weight)
-            tf.add_to_collection(layer_name,bias)   
+        #if is_load:
+        tf.add_to_collection(layer_name, weight)
+        tf.add_to_collection(layer_name,bias)   
 
         inputs = tf.add(tf.matmul(inputs, weight), bias)
         if is_output:
@@ -224,7 +224,7 @@ class Net:
                 l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
                 print("the %s epoch loss is %s" % (i,l))
                 
-                if i > 10000 and self.mode == 2:
+                if i > 1000 and self.mode == 2:
                     #fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
                     # 跑了一下午程序，存错变量了
                     fc_7_w = tf.get_collection('fc_7')[0]
