@@ -166,9 +166,11 @@ class Net:
     def loss(self, result, label, size):
         # 预测类别
         class_pre = tf.slice(self.result, [0, 0], [size, 7*7], name='class_pre')
+        class_pre = tf.sigmoid(class_pre)
         class_label =tf.slice(label, [0,0], [size, 7*7], name='class_label')
         # 预测是否存在于方块
         prob_pre =  tf.slice(self.result, [0, 7*7], [size, 7*7], name='prob_pre')
+        prob_pre = tf.sigmoid(prob_pre)
         prob_label =  tf.slice(label, [0, 7*7], [size, 7*7], name='prob_label')
         # 预测横纵坐标
         pos_pre = tf.slice(self.result, [0, 7*7*2], [size, 7*7*2], name='pos_pre')
@@ -251,8 +253,8 @@ a = net.run(inputs)
 print(a.shape)
 np.save('juanji.npy',a) '''
 # 这个是用来对全连接层进行训练的
-#net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
-#net.train_fc()
+net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
+net.train_fc()
 # 这个是完整的网络
 ''' img = cv2.imread('dataset/img0.png')
 #img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
