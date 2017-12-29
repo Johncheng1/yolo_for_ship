@@ -224,7 +224,7 @@ class Net:
                 l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
                 print("the %s epoch loss is %s" % (i,l))
                 
-                if i > 1000 and self.mode == 2:
+                if i > 10000 and self.mode == 2 and i%1000==0:
                     #fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
                     # 跑了一下午程序，存错变量了
                     fc_7_w = tf.get_collection('fc_7')[0]
@@ -237,6 +237,7 @@ class Net:
                     c = self.sess.run(cul, feed_dict={self.input: data, self.output: label}) #session.run(tf.get_collection('weights')[0].assign(self.weights[0]))
                     c = np.array(c)
                     np.save('fc.npy',c)
+                    print("npy文件保存了")
 
     def trans_to_npy(self):
         pass
@@ -250,8 +251,8 @@ a = net.run(inputs)
 print(a.shape)
 np.save('juanji.npy',a) '''
 # 这个是用来对全连接层进行训练的
-net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
-net.train_fc()
+#net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
+#net.train_fc()
 # 这个是完整的网络
 ''' img = cv2.imread('dataset/img0.png')
 #img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)

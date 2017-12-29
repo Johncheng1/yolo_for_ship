@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import cv2
+import net
+import read_ckpt
 #import load
 def get_matrix(data):
     matrix = np.zeros([6,7,7])
@@ -24,19 +26,13 @@ def get_matrix(data):
     matrix = matrix.reshape(6*7*7)
     #matrix = matrix.reshape([6,7,7])
     return matrix
-''' input = tf.Variable([[1,2,3,4,5,6,7,8,9,10],[11,12,13,14,15,16,17,18,19,20]], name="counter")
-result = tf.slice(input, [0,2], [2,4])
-sess = tf.Session()
-sess.run(tf.global_variables_initializer())
-a = sess.run(result)
-print(load.train_data[0]) '''
-''' dataset = np.load('fc_dataset.npy')
-label = dataset[0][1]
-m = get_matrix(label)
+
+''' m = np.load('result.npy')
+m0 = m.reshape([6,7,7])[0]
+m1 = m.reshape([6,7,7])[1]
+print(np.where(m0>0.7))
+print(np.where(m1>0.7))
 m = m.reshape([6,7,7])
-np.save('result.npy',m) '''
-m = np.load('result.npy')
-#print(m)
 s = m[0]*m[1]
 s_y = np.where(s>0.2)[0][0]
 s_x = np.where(s>0.2)[1][0]
@@ -50,4 +46,39 @@ img = cv2.imread('dataset/img0.png')
 cv2.rectangle(img, (pos_x-w,pos_y-h), (pos_x+w,pos_y+h), (255,255,255), 1)
 cv2.imshow("shape", img)
 cv2.waitKey(0)
+cv2.destroyAllWindows()  '''
+img = cv2.imread('dataset/img1.png')
+inputs = np.zeros((1,448,448,3),dtype='float32')
+inputs[0] = (img/255.0)*2.0-1.0
+yolo = net.Net(read_ckpt.layer_names, read_ckpt.weights, 0)
+output = yolo.run(inputs)
+m = output.reshape([6,7,7])
+
+s = m[0]*m[1]
+s_y_l = np.where(s>0.5)[0]
+s_x_l = np.where(s>0.5)[1]
+for i in range(len(list(s_y_l))): 
+    
+    s_y = s_y_l[i]
+    s_x = s_x_l[i]
+    
+    print(m[0][s_y][s_x])
+    
+    pos_y = (m[3][s_y][s_x] + s_y) * 64
+    pos_x = (m[2][s_y][s_x] + s_x) * 64
+    pos_x = int(pos_x)
+    pos_y = int(pos_y)
+    w = int(m[4][s_y][s_x] * 32)
+    h = int(m[5][s_y][s_x] * 32)
+    cv2.rectangle(img, (pos_x-w,pos_y-h), (pos_x+w,pos_y+h), (255,255,255), 1)
+
+img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+
+cv2.imshow("shape", img)
+cv2.waitKey(0)
 cv2.destroyAllWindows()
+''' a = np.arange(10)
+s = np.where(a>5)
+print(s)
+for i in s[0]:
+    print(i) '''
