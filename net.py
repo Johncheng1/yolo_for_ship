@@ -166,11 +166,11 @@ class Net:
     def loss(self, result, label, size):
         # 预测类别
         class_pre = tf.slice(self.result, [0, 0], [size, 7*7], name='class_pre')
-        class_pre = tf.sigmoid(class_pre)
+        #class_pre = tf.sigmoid(class_pre)
         class_label =tf.slice(label, [0,0], [size, 7*7], name='class_label')
         # 预测是否存在于方块
         prob_pre =  tf.slice(self.result, [0, 7*7], [size, 7*7], name='prob_pre')
-        prob_pre = tf.sigmoid(prob_pre)
+        #prob_pre = tf.sigmoid(prob_pre)
         prob_label =  tf.slice(label, [0, 7*7], [size, 7*7], name='prob_label')
         # 预测横纵坐标
         pos_pre = tf.slice(self.result, [0, 7*7*2], [size, 7*7*2], name='pos_pre')
@@ -183,7 +183,7 @@ class Net:
         prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
         pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
         size_loss = tf.reduce_sum(tf.square( size_pre - size_label ))
-        loss = 0.5*(class_loss + prob_loss) + 5*(pos_loss + size_loss)
+        loss = (class_loss + prob_loss) + 5*(pos_loss + size_loss)
 
         return loss
     """
@@ -191,7 +191,8 @@ class Net:
     """
     def set_training(self):
         self.loss = self.loss(self.result, self.output, self.batch_size)
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.00001).minimize(self.loss)
+        #self.optimizer = tf.train.AdamOptimizer(learning_rate=0.000015).minimize(self.loss)
+        self.optimizer = tf.train.GradientDescentOptimizer(0.00000001).minimize(self.loss) 
     def run(self, input):
         return self.sess.run(self.result,feed_dict={self.input:input})
     """
@@ -226,7 +227,7 @@ class Net:
                 l = self.sess.run(self.loss, feed_dict={self.input: data, self.output: label})
                 print("the %s epoch loss is %s" % (i,l))
                 
-                if i > 10000 and self.mode == 2 and i%1000==0:
+                if i > 0 and self.mode == 2 and i%1000==0:
                     #fc1,fc2,fc3 = self.sess.run([self.fc1,self.fc2,self.fc3], feed_dict={self.input: data, self.output: label})
                     # 跑了一下午程序，存错变量了
                     fc_7_w = tf.get_collection('fc_7')[0]

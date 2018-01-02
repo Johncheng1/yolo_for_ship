@@ -26,7 +26,8 @@ def get_matrix(data):
     matrix = matrix.reshape(6*7*7)
     #matrix = matrix.reshape([6,7,7])
     return matrix
-
+def sigmoid(x):
+    return 1/(1+np.exp(-x))
 ''' m = np.load('result.npy')
 m0 = m.reshape([6,7,7])[0]
 m1 = m.reshape([6,7,7])[1]
@@ -47,16 +48,18 @@ cv2.rectangle(img, (pos_x-w,pos_y-h), (pos_x+w,pos_y+h), (255,255,255), 1)
 cv2.imshow("shape", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()  '''
-img = cv2.imread('dataset/img1.png')
+img = cv2.imread('dataset/img.png')
 inputs = np.zeros((1,448,448,3),dtype='float32')
 inputs[0] = (img/255.0)*2.0-1.0
 yolo = net.Net(read_ckpt.layer_names, read_ckpt.weights, 0)
 output = yolo.run(inputs)
 m = output.reshape([6,7,7])
+print(m[0])
+th = 0.5
 
-s = m[0]*m[1]
-s_y_l = np.where(s>0.5)[0]
-s_x_l = np.where(s>0.5)[1]
+s = m[0] 
+s_y_l = np.where(s>th)[0]
+s_x_l = np.where(s>th)[1]
 for i in range(len(list(s_y_l))): 
     
     s_y = s_y_l[i]
