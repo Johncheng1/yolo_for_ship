@@ -254,8 +254,8 @@ a = net.run(inputs)
 print(a.shape)
 np.save('juanji.npy',a) '''
 # 这个是用来对全连接层进行训练的
-net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
-net.train_fc()
+#net = Net(read_ckpt.layer_names, read_ckpt.weights,2)
+#net.train_fc()
 # 这个是完整的网络
 ''' img = cv2.imread('dataset/img0.png')
 #img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)

@@ -49,6 +49,9 @@ cv2.imshow("shape", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()  '''
 img = cv2.imread('dataset/img.png')
+#img = cv2.imread('dataset_for_orign/2017-12-02_15-33-51.png')
+#img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+#img=cv2.resize(img,(448,448),interpolation=cv2.INTER_CUBIC)
 inputs = np.zeros((1,448,448,3),dtype='float32')
 inputs[0] = (img/255.0)*2.0-1.0
 yolo = net.Net(read_ckpt.layer_names, read_ckpt.weights, 0)
