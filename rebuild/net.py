@@ -38,28 +38,37 @@ class Net:
 
     def build(self, layer_names, weights):
         self.temp = self.input
-        i = 0
-        # 定义网络的基本结构
-        for layer_name in layer_names:
-            ''' print(weights[i].shape[0])
-            i = i + 1 '''
-            if layer_name[0] == 'c':
-                if layer_name[-1] == 's':
-                    self.temp = self.conv_layer(layer_name[:-1], self.temp, weights[i].shape, 2)
-                    print('这是一个卷积层 => '+str(layer_name) + ' => 尺寸为' + str(weights[i].shape))
-                else:
-                    self.temp = self.conv_layer(layer_name, self.temp, weights[i].shape, 1)
-                    print('这是一个卷积层 => '+str(layer_name) + ' => 尺寸为' + str(weights[i].shape))
-                i = i + 2
-            elif layer_name[0] == 'm':
-                # self.pre = self.max_pool("max_pool_3", self.pre)
-                self.temp = self.max_pool(layer_name, self.temp)
-                print('这是一个池化层 => '+str(layer_name))
-            elif layer_name[0] == 'f':
-                print('这是一个全连接层 => '+str(layer_name))
-            elif layer_name[0] == 't':
-                self.temp= tf.transpose(self.temp,(0,3,1,2))
-                self.temp = tf.reshape(self.temp, [-1, 7*7*1024 ]) 
+        if self.mode == 0:
+            pass
+        elif self.mode == 1:
+            pass
+        elif self.mode == 2:
+            i = 0
+            # 定义网络的基本结构
+            for layer_name in layer_names:
+                ''' print(weights[i].shape[0])
+                i = i + 1 '''
+                if layer_name[0] == 'c':
+                    if layer_name[-1] == 's':
+                        self.temp = self.conv_layer(layer_name[:-1], self.temp, weights[i].shape, 2)
+                        print('这是一个卷积层 => '+str(layer_name) + ' => 尺寸为' + str(weights[i].shape))
+                    else:
+                        self.temp = self.conv_layer(layer_name, self.temp, weights[i].shape, 1)
+                        print('这是一个卷积层 => '+str(layer_name) + ' => 尺寸为' + str(weights[i].shape))
+                    i = i + 2
+                elif layer_name[0] == 'm':
+                    # self.pre = self.max_pool("max_pool_3", self.pre)
+                    self.temp = self.max_pool(layer_name, self.temp)
+                    print('这是一个池化层 => '+str(layer_name))
+                elif layer_name[0] == 'f':
+                    self.temp = self.fc_layer(layer_name, self.temp, weights[i].shape, True, False)
+                    print('这是一个全连接层 => '+str(layer_name)+ ' => 尺寸为' + str(weights[i].shape))
+                    i = i + 2
+                elif layer_name[0] == 't':
+                    self.temp= tf.transpose(self.temp,(0,3,1,2))
+                    self.temp = tf.reshape(self.temp, [-1, 7*7*1024 ]) 
+        elif self.mode == 3:
+            pass
 
 
 
