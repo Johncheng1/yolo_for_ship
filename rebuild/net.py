@@ -35,6 +35,10 @@ class Net:
             self.output = tf.placeholder('float32', [None, 7*7*1024])
         # 把网络结构搭起来
         self.build(layer_names, weights)
+        # 创建session
+        self.sess = tf.Session()
+        self.sess.run(tf.global_variables_initializer())
+        self.load_weights(weights)
 
     def build(self, layer_names, weights):
         self.temp = self.input
@@ -67,10 +71,10 @@ class Net:
                 elif layer_name[0] == 't':
                     self.temp= tf.transpose(self.temp,(0,3,1,2))
                     self.temp = tf.reshape(self.temp, [-1, 7*7*1024 ]) 
+            self.out = self.temp
+
         elif self.mode == 3:
             pass
-
-
 
     def read_weights(self, weights_file, mode):
         weights = []
@@ -85,16 +89,29 @@ class Net:
         
         return weights
 
-    def load_weights(self):
+    def load_weights(self, weights):
         # 初始化权重
-        pass
+        if self.mode == 0:
+            pass
+        elif self.mode == 1:
+            pass
+        elif self.mode == 2:    # 物体检测模式
+            i = 0
+            for w in tf.get_collection('conv_weights'):
+                self.sess.run(w.assign(weights[i]))
+                i = i + 1
+            for w in tf.get_collection('fc_weights'):
+                self.sess.run(w.assign(weights[i]))
+                i = i + 1
+        elif self.mode == 3:
+            pass
 
     def conv_layer(self, layer_name, inputs, filter, stride, trainable = False):   
         weight = tf.get_variable(name='w_'+layer_name, trainable = trainable, shape = filter, initializer = tf.contrib.layers.xavier_initializer() )
         bias = tf.get_variable(name='b_'+layer_name, trainable = trainable, shape = [ filter[-1] ], initializer = tf.constant_initializer(0.0) )
 
-        tf.add_to_collection('weights', weight)
-        tf.add_to_collection('weights',bias)    
+        tf.add_to_collection('conv_weights', weight)
+        tf.add_to_collection('conv_weights',bias)    
 
         inputs = tf.nn.conv2d(inputs, weight, [1,stride,stride,1], padding='SAME', name=layer_name+'_conv')
         inputs = tf.nn.bias_add(inputs, bias, name=layer_name+'_bias')
@@ -110,8 +127,8 @@ class Net:
         weight = tf.get_variable(name='w_'+layer_name, trainable = True, shape = shape, initializer = tf.contrib.layers.xavier_initializer() )
         bias = tf.get_variable(name='b_'+layer_name, trainable = True, shape = [ shape[-1] ], initializer = tf.constant_initializer(0.0) )
 
-        tf.add_to_collection(layer_name, weight)
-        tf.add_to_collection(layer_name,bias)   
+        tf.add_to_collection('fc_weights', weight)
+        tf.add_to_collection('fc_weights',bias)   
 
         inputs = tf.add(tf.matmul(inputs, weight), bias)
 
@@ -123,4 +140,4 @@ class Net:
     def loss(self):
         pass
 if __name__ == '__main__':
-    net = Net(0, weights_small, layer_names)
+    net = Net(2, weights_small, layer_names)
