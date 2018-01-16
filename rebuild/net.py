@@ -136,10 +136,15 @@ class Net:
             inputs = tf.maximum(0.1*inputs,inputs,name=layer_name+'_leaky_relu') 
         
         return inputs
+    def loss(self):
+        pass
+
     def run(self, input):
         return self.sess.run(self.out,feed_dict={self.input:input})
+
     def object_detection(self):
         pass
+        
     def ship_detection(self):
         pass
 
