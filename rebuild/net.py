@@ -150,5 +150,6 @@ class Net:
 
     def loss(self):
         pass
+    # 随便刷个更新而已
 if __name__ == '__main__':
     net = Net(2, weights_small, layer_names)
