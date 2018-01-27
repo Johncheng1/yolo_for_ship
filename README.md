@@ -8,4 +8,4 @@ now I try to use a chajian call the Auto openc markdown and thin it so good for 
 
 这里，我很愿意提供一下我说使用的预训练数据：
 
-链接：https://pan.baidu.com/s/1jIckzbg 密码：klsu
+链接：https://pan.baidu.com/s/1jIZRt0E 密码：1rhr
