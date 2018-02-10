@@ -1,6 +1,8 @@
 import tensorflow as tf 
 import numpy as np
 import cv2
+from tqdm import tqdm 
+data_set_size = 11
 weights_small='weights/YOLO_small.ckpt'
 layer_names = ['conv1s', 'max_pool1', 'conv2', 'max_pool2',
             'conv3_1', 'conv3_2', 'conv3_3', 'conv3_4', 'max_pool3',
@@ -64,9 +66,9 @@ class Net:
                         print('这是一个全连接层 => '+str(layer_name)+ ' => 尺寸为' + str(weights[i].shape))
                         i = i + 2
                     else:
-                        self.temp = self.fc_layer(layer_name, self.temp, weights[i].shape, True, False, False)
+                        self.temp = self.fc_layer(layer_name, self.temp, [4096,5*7*7], True, False, False)
                         print(weights[i].shape)
-                        print('这是一个全连接层 => '+str(layer_name)+ ' => 尺寸为' + str(weights[i].shape))
+                        print('这是一个全连接层 => '+str(layer_name)+ ' => 尺寸为' + str([4096,5*7*7]))
                         i = i + 2
                 
                 elif layer_name[0] == 't':
@@ -121,7 +123,13 @@ class Net:
     def load_weights(self, weights):
         # 初始化权重
         if self.mode == 0:
-            pass
+            i = 0
+            for w in tf.get_collection('conv_weights'):
+                self.sess.run(w.assign(weights[i]))
+                i = i + 1
+            for w in tf.get_collection('fc_weights'):
+                self.sess.run(w.assign(weights[i]))
+                i = i + 1
         elif self.mode == 1:
             pass
         elif self.mode == 2:    # 物体检测模式
@@ -166,8 +174,30 @@ class Net:
             inputs = tf.maximum(0.1*inputs,inputs,name=layer_name+'_leaky_relu') 
         
         return inputs
-    def loss(self):
-        pass
+
+    def set_training(self):
+        self.loss = self.loss_function(self.out, self.output)
+        #self.optimizer = tf.train.AdamOptimizer(learning_rate=0.000015).minimize(self.loss)
+        self.optimizer = tf.train.GradientDescentOptimizer(0.00000001).minimize(self.loss) 
+    
+    def loss_function(self, out, label):
+        # 预测是否存在于方块
+        prob_pre =  tf.slice(self.out, [0, 0], [32, 7*7], name='prob_pre')
+        #prob_pre = tf.sigmoid(prob_pre)
+        prob_label =  tf.slice(label, [0, 0], [32, 7*7], name='prob_label')
+        # 预测横纵坐标
+        pos_pre = tf.slice(self.out, [0, 7*7], [32, 7*7*2], name='pos_pre')
+        pos_label = tf.slice(label, [0, 7*7], [32, 7*7*2], name='pos_label')
+        # 预测长宽尺寸
+        size_pre = tf.slice(self.out, [0, 7*7*3], [32, 7*7*2], name='size_pre')
+        size_label = tf.slice(label, [0, 7*7*3], [32, 7*7*2], name='size_label')
+        # 损失
+        prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
+        pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
+        size_loss = tf.reduce_sum(tf.square( size_pre - size_label ))
+        loss = ( prob_loss) + 5*(pos_loss + size_loss) 
+
+        return loss
 
     def run(self, input):
         return self.sess.run(self.out,feed_dict={self.input:input})
@@ -182,15 +212,38 @@ class Net:
 # 这玩意是准备数据集用的，因为谷歌那破玩意执行.py的步骤整不明白所以干脆放到一起来了
 class Dataset:
     def __init__(self):
-        pass
+        print("导入数据及")
     # index 索引数目
     # num 返回的数据数目
     # type 是随机还是按顺序返回
-    def get_placeholder(self, index, num, type):
+    def get_placeholder(self, index, type):
+        batch = []
+        data = []
+        label = []
+        if type == 1:
+            pass
+        else:
+            filename = "dataset/dataset_"+str(index)+".npy"
+            batch = np.load(filename)
+        for item in batch:
+            data.append(item[0])
+            label.append(item[1])
+        data = np.array(data)
+        data = data / 127.5 - 1
+        label = np.array(label)
+        return data,label
+    def pack(self):
         pass
-    def pack()
 if __name__ == '__main__':
-    pass
+    ''' dataset = Dataset()
+    data,label = dataset.get_placeholder(10,0) '''
+    net = Net(0, weights_small, layer_names)
+    dataset = Dataset()
+    net.set_training()
+    for i in range(0,10+1):
+        data,label = dataset.get_placeholder(i,0)
+        l = net.sess.run(net.optimizer, feed_dict={net.input: data, net.output: label})
+        print(l)
     ''' img = cv2.imread('test.jpg')
     img = cv2.resize(img,(448,448),interpolation=cv2.INTER_CUBIC)
     inputs = np.zeros((1,448,448,3),dtype='float32')
