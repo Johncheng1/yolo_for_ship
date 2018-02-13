@@ -127,9 +127,9 @@ class Net:
             for w in tf.get_collection('conv_weights'):
                 self.sess.run(w.assign(weights[i]))
                 i = i + 1
-            for w in tf.get_collection('fc_weights'):
-                self.sess.run(w.assign(weights[i]))
-                i = i + 1
+            #for w in tf.get_collection('fc_weights'):
+            #    self.sess.run(w.assign(weights[i]))
+            #    i = i + 1
         elif self.mode == 1:
             pass
         elif self.mode == 2:    # 物体检测模式
@@ -178,7 +178,7 @@ class Net:
     def set_training(self):
         self.loss = self.loss_function(self.out, self.output)
         #self.optimizer = tf.train.AdamOptimizer(learning_rate=0.000015).minimize(self.loss)
-        self.optimizer = tf.train.GradientDescentOptimizer(0.00000001).minimize(self.loss) 
+        self.optimizer = tf.train.GradientDescentOptimizer(0.000000001).minimize(self.loss) 
     
     def loss_function(self, out, label):
         # 预测是否存在于方块
@@ -192,10 +192,10 @@ class Net:
         size_pre = tf.slice(self.out, [0, 7*7*3], [32, 7*7*2], name='size_pre')
         size_label = tf.slice(label, [0, 7*7*3], [32, 7*7*2], name='size_label')
         # 损失
-        prob_loss = tf.reduce_sum(tf.square( prob_pre - prob_label ))
-        pos_loss = tf.reduce_sum(tf.square( pos_pre - pos_label ))
-        size_loss = tf.reduce_sum(tf.square( size_pre - size_label ))
-        loss = ( prob_loss) + 5*(pos_loss + size_loss) 
+        prob_loss = tf.reduce_mean(tf.square( prob_pre - prob_label ))
+        pos_loss = tf.reduce_mean(tf.square( pos_pre - pos_label ))
+        size_loss = tf.reduce_mean(tf.square( size_pre - size_label ))
+        loss = ( prob_loss) #+ 5*(pos_loss + size_loss) 
 
         return loss
 
